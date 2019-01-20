@@ -1,0 +1,23 @@
+
+@font-face {
+  font-family: Ubuntu;
+  src: url(Ubuntu-Medium.ttf);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Ubuntu,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(90deg, rgb(56, 97, 105), rgb(45, 170, 167));
+}
+button{
+  cursor: pointer;
+  text-align: center;
+}
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
