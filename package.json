@@ -1,6 +1,7 @@
 {
   "name": "gezichtsherkenning",
   "version": "0.1.0",
+  "Author":"R.Heeffer",
   "private": true,
   "dependencies": {
     "clarifai": "^2.9.0",

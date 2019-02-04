@@ -8,10 +8,7 @@ import GezichtDetect from "./componenten/gezichtdetect/gezichtdetect";
 import UrlFormulier from './componenten/url/urlFormulier';
 import Rank from './componenten/rank/rank';
 import Particles from 'react-particles-js';
-import Clarifai from 'clarifai';
-const app = new Clarifai.App({
- apiKey: '50fc9203391d4b358c881e5513551955'
-});
+
 
  const particleOpties = {particles: {
                   number:{
@@ -24,17 +21,27 @@ const app = new Clarifai.App({
                   }
                 }
 
-class App extends Component {
-  constructor(){
-    super();
-      this.state = {
+const beginState = {
         input:"",
         imgUrl:"",
         box:"",
         route:'login',
-        IngeLogd: false
+        IngeLogd: false,
+        gebruiker:   {
+                        id:'',
+                        naam:'',
+                        email: "",
+                        entries: 0,
+                        joined: ""
+                         }
       }
+
+class App extends Component {
+  constructor(){
+    super();
+      this.state = beginState;
   }
+
 
   berGezchtloc = (data) => {
     const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
@@ -62,22 +69,49 @@ class App extends Component {
   
   onButtonSubmit = () =>{
     this.setState({imgUrl: this.state.input})
-    app.models
-    .predict(
-     Clarifai.FACE_DETECT_MODEL,
-     this.state.input)
-    .then(response => { this.gezichtBox(this.berGezchtloc(response))})
-
+     fetch('https://floating-reef-84982.herokuapp.com/imageurl',{
+      method:'post',
+      headers: {'Content-type': 'application/json'},
+      body: JSON.stringify({
+        input: this.state.input
+      })
+    })
+    .then(res => res.json())
+    .then(response => { 
+         fetch('https://floating-reef-84982.herokuapp.com/image',{
+      method:'put',
+      headers: {'Content-type': 'application/json'},
+      body: JSON.stringify({
+        id: this.state.gebruiker.id
+      })
+    })
+    .then(res => res.json())
+    .then(cijfer =>{
+      this.setState(Object.assign(this.state.gebruiker,{entries: cijfer}))
+      })
+      this.gezichtBox(this.berGezchtloc(response))
+    })
     .catch(err => console.log(err));
   }
 
   onRouteChange = (route)=>{
-    if (route === 'home'){
-     this.setState({IngeLogd: true});
-    }else{
-      this.setState({IngeLogd: false});
+    if (route === 'login'){
+     this.setState(beginState);
+    }else if (route === "home"){
+      this.setState({IngeLogd: true});
     }
     this.setState({route: route});
+  }
+
+  laadGebruiker = (data) =>{
+    this.setState( {  gebruiker:   {
+                        id: data.id,
+                        naam:data.naam,
+                        email: data.email,
+                        entries: data.entries,
+                        joined: data.joined
+                         }})
+
   }
 
   render() {
@@ -89,12 +123,12 @@ class App extends Component {
         <Logo/>
         { (route === 'home') 
         ?<div>
-        <Rank/>
+        <Rank naam={this.state.gebruiker.naam} entries={this.state.gebruiker.entries}/>
         <UrlFormulier onInputChange={this.onInputChange} onButtonSubmit={this.onButtonSubmit}/>
         <GezichtDetect imgUrl={imgUrl} box={this.state.box}/>
         </div>:(route === 'login')
-          ? <LogIn onRouteChange={this.onRouteChange}/>
-          : <Registreer onRouteChange={this.onRouteChange}/>}
+          ? <LogIn  laadGebruiker = {this.laadGebruiker} onRouteChange={this.onRouteChange}/>
+          : <Registreer  laadGebruiker = {this.laadGebruiker} onRouteChange={this.onRouteChange}/>}
       </div>
   )}
 }
