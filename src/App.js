@@ -24,7 +24,7 @@ import Particles from 'react-particles-js';
 const beginState = {
         input:"",
         imgUrl:"",
-        box:"",
+        boxes:[],
         route:'login',
         IngeLogd: false,
         gebruiker:   {
@@ -44,22 +44,22 @@ class App extends Component {
 
 
   berGezchtloc = (data) => {
-    const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
-    const img = document.getElementById("inputimg");
-    const width = Number(img.width);
-    const height = Number(img.height);
-    console.log(clarifaiFace)
-    return {
-    leftCol: clarifaiFace.left_col * width,
-    rightCol: width - (clarifaiFace.right_col * width),
-    topRow: clarifaiFace.top_row * height,
-    bottomRow: height - (clarifaiFace.bottom_row * height)
-    }
-
+    const image = document.getElementById('inputimage');
+    const width = Number(image.width);
+    const height = Number(image.height);
+    return data.outputs[0].data.regions.map(gezicht => {
+      const clarifaiFace = gezicht.region_info.bounding_box;
+      return {
+        leftCol: clarifaiFace.left_col * width,
+        topRow: clarifaiFace.top_row * height,
+        rightCol: width - (clarifaiFace.right_col * width),
+        bottomRow: height - (clarifaiFace.bottom_row * height)
+      }
+    });
   }
   
   gezichtBox = (box) =>{
-    this.setState({box:box});
+    this.setState({boxes:box});
   }
 
 
@@ -89,7 +89,7 @@ class App extends Component {
     .then(cijfer =>{
       this.setState(Object.assign(this.state.gebruiker,{entries: cijfer}))
       })
-      this.gezichtBox(this.berGezchtloc(response))
+    this.gezichtBox(this.berGezchtloc(response))
     })
     .catch(err => console.log(err));
   }
@@ -104,14 +104,15 @@ class App extends Component {
   }
 
   laadGebruiker = (data) =>{
-    this.setState( {  gebruiker:   {
-                        id: data.id,
-                        naam:data.naam,
-                        email: data.email,
-                        entries: data.entries,
-                        joined: data.joined
-                         }})
-
+    this.setState((state, props) => {
+      return {  gebruiker:   {
+                    id: data.id,
+                    naam:data.naam,
+                    email: data.email,
+                    entries: data.entries,
+                    joined: data.joined
+                     }}
+              })
   }
 
   render() {
@@ -125,7 +126,7 @@ class App extends Component {
         ?<div>
         <Rank naam={this.state.gebruiker.naam} entries={this.state.gebruiker.entries}/>
         <UrlFormulier onInputChange={this.onInputChange} onButtonSubmit={this.onButtonSubmit}/>
-        <GezichtDetect imgUrl={imgUrl} box={this.state.box}/>
+        <GezichtDetect imgUrl={imgUrl} boxes={this.state.boxes}/>
         </div>:(route === 'login')
           ? <LogIn  laadGebruiker = {this.laadGebruiker} onRouteChange={this.onRouteChange}/>
           : <Registreer  laadGebruiker = {this.laadGebruiker} onRouteChange={this.onRouteChange}/>}
