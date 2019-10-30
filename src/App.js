@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import Logo from './componenten/logo/logo';
 import './App.css';
 import Navigatie from "./componenten/navigatie/navigatie";
 import LogIn from "./componenten/inloggen/inlog";
@@ -119,9 +118,8 @@ class App extends Component {
     const {imgUrl,route,IngeLogd} =this.state;
     return (
       <div className="App">
-         <Particles  className= 'particles' params={particleOpties} />
+        <Particles  className= 'particles' params={particleOpties} />
         <Navigatie IngeLogd={IngeLogd} onRouteChange={this.onRouteChange}/>
-        <Logo/>
         { (route === 'home') 
         ?<div>
         <Rank naam={this.state.gebruiker.naam} entries={this.state.gebruiker.entries}/>
