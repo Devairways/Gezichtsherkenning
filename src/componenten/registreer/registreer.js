@@ -71,7 +71,6 @@ class Registreer extends React.Component{
 		
 	}
 	keyEvent = (event)=>{
-		console.log(this.onButtonSubmit)
 		if (event.keyCode === 13){
 			this.onButtonSubmit();
 		}
